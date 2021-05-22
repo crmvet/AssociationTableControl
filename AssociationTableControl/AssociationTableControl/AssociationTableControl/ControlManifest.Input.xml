@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest>
+  <control namespace="CRMVet" constructor="AssociationTableControl" version="0.0.29" display-name-key="Association Table Control" description-key="Control for Association (aka joint or N:N) tables" control-type="standard" preview-image="img/preview.png">
+    <!-- This property node defines configuration required for this PCF. Configuration is done as a mapping to Dataverse fields or hard-coded expressions -->
+    <property name="fieldValue" display-name-key="Field Logical Name" description-key="Property_Desc_Key" of-type="Multiple" usage="bound" required="true" />
+    <property name="selectorTable" display-name-key="Selector Table" description-key="Name for the Selector Table to show records to choose from in UI. Example: crmvet_table2" of-type="SingleLine.Text" usage="input" required="true" default-value="" />
+    <property name="selectorLabel" display-name-key="Selector Label" description-key="Logical Name for the Selector Table field to be used as a Label in UI for selector items. Example: crmvet_uilabel" of-type="SingleLine.Text" usage="input" required="true" default-value="" />
+    <property name="associationTable" display-name-key="Association Table" description-key="Name for the Association Table (aka N:N Table) where joint/association records are stored. Example: crmvet_table1_table2_association" of-type="SingleLine.Text" usage="input" required="true" default-value="" />
+    <property name="lookuptoAssociatedTable" display-name-key="Lookup to Associated Table" description-key="Schema Name of the lookup to the associated/target table in the joint/association table (N:N). Example: crmvet_Table2Id" of-type="SingleLine.Text" usage="input" required="true" default-value="" />
+    <property name="lookuptoCurrentTable" display-name-key="Lookup to Current Table" description-key="Schema Name of the lookup to the current table in the joint/association table (N:N). Example: crmvet_Table1Id" of-type="SingleLine.Text" usage="input" required="true" default-value="" />
+    <property name="defaultFilter" display-name-key="Default Filter" description-key="Default Filter for Selector Table to define what records would be visible in UI. Example: statuscode eq 1" of-type="SingleLine.Text" usage="input" default-value="" required="false" />
+    <property name="visibilityToggle" display-name-key="Visibility Toggle" description-key="Show or Hide in UI Selector Values. Useful if due to the number of options PCF takes to much space on a form. Example: Yes/No" of-type="Enum" usage="input" required="false">
+      <value name="No" display-name-key="No">0</value>
+      <value name="Yes" display-name-key="Yes">1</value>
+    </property>    
+    <resources>
+      <code path="index.ts" order="1" />
+      <css path="css/AssociationTableControl.css" order="1" />
+      <css path="css/bootstrap.min.css" order="2" />
+    </resources>
+    <feature-usage>
+      <uses-feature name="Utility" required="true" />
+      <uses-feature name="WebAPI" required="true" />
+    </feature-usage>
+  </control>
+</manifest>
