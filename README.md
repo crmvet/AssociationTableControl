@@ -7,7 +7,7 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:image {"sizeSlug":"large","linkDestination":"none"} -->
-<figure class="wp-block-image size-large"><img src="https://crm.vet/wp-content/uploads/2021/05/Association-Table-Control-Form-Example.gif" alt=""/></figure>
+<figure class="wp-block-image size-large"><img src="/images/Association-Table-Control-Form-Example.gif" alt=""/></figure>
 <!-- /wp:image -->
 
 <!-- wp:paragraph -->
@@ -19,7 +19,7 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:image {"id":550,"sizeSlug":"large","linkDestination":"none"} -->
-<figure class="wp-block-image size-large"><img src="https://crm.vet/wp-content/uploads/2021/05/Association-Table-Control-ERD-Example.svg" alt="" class="wp-image-550"/></figure>
+<figure class="wp-block-image size-large"><img src="/images/Association-Table-Control-ERD.svg" alt="" class="wp-image-550"/></figure>
 <!-- /wp:image -->
 
 <!-- wp:heading -->
@@ -39,7 +39,7 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:image {"id":615,"sizeSlug":"large","linkDestination":"none"} -->
-<figure class="wp-block-image size-large"><img src="https://crm.vet/wp-content/uploads/2021/05/Association-Table-Control-Configuration-Form-Example-842x1024.png" alt="" class="wp-image-615"/></figure>
+<figure class="wp-block-image size-large"><img src="/images/Association-Table-Control-Configuration-Form-Example.png" alt="" class="wp-image-615"/></figure>
 <!-- /wp:image -->
 
 <!-- wp:list -->
