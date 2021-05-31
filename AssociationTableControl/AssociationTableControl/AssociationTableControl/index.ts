@@ -201,7 +201,7 @@ export class AssociationTableControl implements ComponentFramework.StandardContr
 
 		var data =
 		{
-			selectorLabel: targetInput.name,
+			[selectorLabel]: targetInput.name,
 			[lookupDataTo]: "/" + thatEntity + "(" + targetInput.id + ")",
 			[lookupDataFrom]: "/" + thisEntityPlural + "(" + recordId + ")"
 		}
