@@ -37,6 +37,9 @@ export class AssociationTableControl implements ComponentFramework.StandardContr
 	private _itemList: detailItem[];
 	private _selStates: selState[];
 	private _showToggle = false;
+	
+	private _outputSelection: boolean = false;
+	private _possibleValues: any[] = [];
 
 	constructor()
 	{
@@ -56,6 +59,10 @@ export class AssociationTableControl implements ComponentFramework.StandardContr
 
 		if (this._context.parameters.visibilityToggle.raw != null) {
 			this._showToggle = this._context.parameters.visibilityToggle.raw == "1" ? true : false;
+		}
+
+		if(context.parameters.outputSelection!.raw == "Yes"){
+			this._outputSelection = true;
 		}
 
 		if (this._context.parameters.defaultFilter.raw != null) {
@@ -84,6 +91,27 @@ export class AssociationTableControl implements ComponentFramework.StandardContr
 				await this.getRecords();
 			}
 		}
+	}
+
+	public getOutputs(): IOutputs
+	{
+		if(this._outputSelection){
+			var tmpArray = this._values.map(item => {
+				var possibleValuesItem = this._possibleValues.find( i => i[this._entityName + "id"] == item);
+
+				return possibleValuesItem[this._selectorLabel];
+			});
+
+			tmpArray.sort((a,b) => a.localeCompare(b))
+
+			return {
+				fieldValue: tmpArray.join(', ')
+				};
+		}
+
+		return {
+			fieldValue: ""
+		  };
 	}
 
 	/** 
@@ -156,6 +184,8 @@ export class AssociationTableControl implements ComponentFramework.StandardContr
 			var newLabel = document.createElement("label");
 			var newUList = document.createElement("li");
 
+			this._possibleValues.push(records.entities[i]);
+
 			newChkBox.type = "checkbox";
 			newChkBox.id = records.entities[i][this._entityName + "id"];
 			newChkBox.name = records.entities[i][this._selectorLabel];
@@ -213,10 +243,14 @@ export class AssociationTableControl implements ComponentFramework.StandardContr
 		if (targetInput.checked) {
 			await this._context.webAPI.createRecord(associationTable, data);
 			actual++;
+
+			this._values.push(targetInput.id);
 		}
 		else {
 			await this.deleteRecord(associationTable, lookupToLower, targetInput.id, lookupFromLower, recordId);
 			actual--;
+
+			this._values.splice(this._values.indexOf(targetInput.id), 1);
 		}
 	
 		this._notifyOutputChanged();
