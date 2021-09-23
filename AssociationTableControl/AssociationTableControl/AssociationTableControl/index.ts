@@ -78,6 +78,10 @@ export class AssociationTableControl implements ComponentFramework.StandardContr
 		if (Xrm.Page.ui.getFormType() !== 1) {
 			await this.getRelatedRecords();
 		}
+
+		if((this._context.parameters.fieldValue.raw == null  || this._context.parameters.fieldValue.raw == "") && this._values.length > 0){
+			this._notifyOutputChanged();
+		}
 	}
 
 	public async updateView(context: ComponentFramework.Context<IInputs>)
@@ -96,6 +100,10 @@ export class AssociationTableControl implements ComponentFramework.StandardContr
 	public getOutputs(): IOutputs
 	{
 		if(this._outputSelection){
+			this._values = this._values.filter((c, index) => {
+				return this._values.indexOf(c) === index;
+			});
+
 			var tmpArray = this._values.map(item => {
 				var possibleValuesItem = this._possibleValues.find( i => i[this._entityName + "id"] == item);
 
@@ -244,7 +252,9 @@ export class AssociationTableControl implements ComponentFramework.StandardContr
 			await this._context.webAPI.createRecord(associationTable, data);
 			actual++;
 
-			this._values.push(targetInput.id);
+			if(this._values.indexOf(targetInput.id) < 0){
+				this._values.push(targetInput.id);
+			}
 		}
 		else {
 			await this.deleteRecord(associationTable, lookupToLower, targetInput.id, lookupFromLower, recordId);
