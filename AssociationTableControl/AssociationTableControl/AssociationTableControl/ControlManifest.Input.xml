@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest>
-  <control namespace="CRMVet" constructor="AssociationTableControl" version="0.0.31" display-name-key="Association Table Control" description-key="Control for Association (aka joint or N:N) tables" control-type="standard" preview-image="img/preview.png">
+  <control namespace="CRMVet" constructor="AssociationTableControl" version="0.0.34" display-name-key="Association Table Control" description-key="Control for Association (aka joint or N:N) tables" control-type="standard" preview-image="img/preview.png">
     <!-- This property node defines configuration required for this PCF. Configuration is done as a mapping to Dataverse fields or hard-coded expressions -->
     <property name="fieldValue" display-name-key="Field Logical Name" description-key="Property_Desc_Key" of-type="Multiple" usage="bound" required="true" />
     <property name="selectorTable" display-name-key="Selector Table" description-key="Name for the Selector Table to show records to choose from in UI. Example: crmvet_table2" of-type="SingleLine.Text" usage="input" required="true" default-value="" />
@@ -12,6 +12,10 @@
     <property name="visibilityToggle" display-name-key="Visibility Toggle" description-key="Show or Hide in UI Selector Values. Useful if due to the number of options PCF takes to much space on a form. Example: Yes/No" of-type="Enum" usage="input" required="false">
       <value name="No" display-name-key="No">0</value>
       <value name="Yes" display-name-key="Yes">1</value>
+    </property>
+    <property name="outputSelection" display-name-key="Output Selection" description-key="Decides whether to output the selection as a comma separated list" of-type="Enum" usage="input" required="true" default-value="No">
+      <value name="Yes" display-name-key="Yes" description-key="Yes">Yes</value> 
+      <value name="No" display-name-key="No" description-key="No">No</value>  
     </property>    
     <resources>
       <code path="index.ts" order="1" />
