@@ -252,6 +252,10 @@ export class AssociationTableControl implements ComponentFramework.StandardContr
 			await this._context.webAPI.createRecord(associationTable, data);
 			actual++;
 
+			if(this._values === null || this._values === undefined){
+				this._values = []; 
+			}
+
 			if(this._values.indexOf(targetInput.id) < 0){
 				this._values.push(targetInput.id);
 			}
@@ -259,7 +263,6 @@ export class AssociationTableControl implements ComponentFramework.StandardContr
 		else {
 			await this.deleteRecord(associationTable, lookupToLower, targetInput.id, lookupFromLower, recordId);
 			actual--;
-
 			this._values.splice(this._values.indexOf(targetInput.id), 1);
 		}
 	
