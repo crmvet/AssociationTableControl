@@ -37,6 +37,7 @@ export class AssociationTableControl implements ComponentFramework.StandardContr
 	private _itemList: detailItem[];
 	private _selStates: selState[];
 	private _showToggle = false;
+	private _controleDisabled = false;
 	
 	private _outputSelection: boolean = false;
 	private _possibleValues: any[] = [];
@@ -89,9 +90,12 @@ export class AssociationTableControl implements ComponentFramework.StandardContr
 		// Add code to update control view
 		this._context = context;
 
+		//Might be more in the future.
+		this._controleDisabled = this._context.mode.isControlDisabled;
+
 		//Check that the entityId value has been updated before refreshing the control
 		if (context.updatedProperties != null && context.updatedProperties.length != 0) {
-			if (context.updatedProperties[context.updatedProperties.length - 1] == "entityId" || context.updatedProperties[context.updatedProperties.length - 1] == "IsControlDisabled") {
+			if (context.updatedProperties.indexOf("entityId") > -1 || context.updatedProperties.indexOf("IsControlDisabled") > -1) {
 				await this.getRecords();
 			}
 		}
@@ -132,25 +136,25 @@ export class AssociationTableControl implements ComponentFramework.StandardContr
 	}
 
 	public async getRelatedRecords() {
-	try {
-		var list = [];
-		// @ts-ignore
-		var contextInfo = this._context.mode.contextInfo;
-		var recordId = contextInfo.entityId;
-		var lookupTo = this._context.parameters.lookuptoAssociatedTable.raw!.toLowerCase();
-		var lookupFrom = this._context.parameters.lookuptoCurrentTable.raw!.toLowerCase();
-		var result = await this._context.webAPI.retrieveMultipleRecords(this._context.parameters.associationTable.raw!, '?$select= _' + lookupTo + '_value&$filter=_' + lookupFrom + '_value eq ' + recordId);
-		for (var i = 0; i < result.entities.length; i++) {
-			var temp = result.entities[i]["_" + lookupTo + "_value"];
-			list.push(temp);
-			var cItem = this._itemList.find((e => e.key === temp));
-			var cState = this._selStates.findIndex(e => e.text === cItem?.parent);
-			if (cState !== -1) {
-				this._selStates[cState].actual++;
+		try {
+			var list = [];
+			// @ts-ignore
+			var contextInfo = this._context.mode.contextInfo;
+			var recordId = contextInfo.entityId;
+			var lookupTo = this._context.parameters.lookuptoAssociatedTable.raw!.toLowerCase();
+			var lookupFrom = this._context.parameters.lookuptoCurrentTable.raw!.toLowerCase();
+			var result = await this._context.webAPI.retrieveMultipleRecords(this._context.parameters.associationTable.raw!, '?$select= _' + lookupTo + '_value&$filter=_' + lookupFrom + '_value eq ' + recordId);
+			for (var i = 0; i < result.entities.length; i++) {
+				var temp = result.entities[i]["_" + lookupTo + "_value"];
+				list.push(temp);
+				var cItem = this._itemList.find((e => e.key === temp));
+				var cState = this._selStates.findIndex(e => e.text === cItem?.parent);
+				if (cState !== -1) {
+					this._selStates[cState].actual++;
+				}
 			}
-		}
-		this._values = list;
-		await this.getRecords();
+			this._values = list;
+			await this.getRecords();
 		} catch(error) { 
 			swal.fire("getRelatedRecords", "Error:" + error.message, "error");
 		}
@@ -158,115 +162,117 @@ export class AssociationTableControl implements ComponentFramework.StandardContr
 
 	//Called to retrieve records to display, both on-load and on-change of lookup
 	public async getRecords() {
-	try {
-		this._container.innerHTML = "";
-		this._mainContainer.innerHTML = "";
-		this._unorderedList.innerHTML = "";
-		if (this._showToggle) {
-			this._togglePanel = document.createElement("div");
-			this._togglePanel.style.float = "right";
-			var toggleProps = {
-				visible: true,
-				onChangeResult: this.showHideControl.bind(this)
+		try {
+			this._container.innerHTML = "";
+			this._mainContainer.innerHTML = "";
+			this._unorderedList.innerHTML = "";
+			if (!this._controleDisabled && this._showToggle) {
+				this._togglePanel = document.createElement("div");
+				this._togglePanel.style.float = "right";
+				var toggleProps = {
+					visible: true,
+					onChangeResult: this.showHideControl.bind(this)
+				}
+
+				ReactDOM.render(React.createElement(ToggleComponent, toggleProps), this._togglePanel);
+				this._mainContainer.appendChild(this._togglePanel);
 			}
+			//Check if table name variable contains data
+			if (this._context.parameters.selectorTable.raw != null && this._context.parameters.selectorTable.raw != "") {
+				this._entityName = this._context.parameters.selectorTable.raw;
+			}
+			//Check if field name contains data
+			if (this._context.parameters.selectorLabel.raw != null && this._context.parameters.selectorLabel.raw != "") {
+				this._selectorLabel = this._context.parameters.selectorLabel.raw;
+			}
+			this._filter = "?$select=" + this._selectorLabel + "," + this._entityName + "id" + "&$orderby=" + this._selectorLabel + " asc";
+			//Default Filter 
+			if (this._defaultFilter !== undefined && this._defaultFilter !== "") {
+				this._filter += "&$filter=" + this._defaultFilter;
+			}
+			var records = await this._context.webAPI.retrieveMultipleRecords(this._entityName, this._filter);
+			for (var i = 0; i < records.entities.length; i++) {
+				var newChkBox = document.createElement("input");
+				var newLabel = document.createElement("label");
+				var newUList = document.createElement("li");
 
-			ReactDOM.render(React.createElement(ToggleComponent, toggleProps), this._togglePanel);
-			this._mainContainer.appendChild(this._togglePanel);
-		}
-		//Check if table name variable contains data
-		if (this._context.parameters.selectorTable.raw != null && this._context.parameters.selectorTable.raw != "") {
-			this._entityName = this._context.parameters.selectorTable.raw;
-		}
-		//Check if field name contains data
-		if (this._context.parameters.selectorLabel.raw != null && this._context.parameters.selectorLabel.raw != "") {
-			this._selectorLabel = this._context.parameters.selectorLabel.raw;
-		}
-		this._filter = "?$select=" + this._selectorLabel + "," + this._entityName + "id" + "&$orderby=" + this._selectorLabel + " asc";
-		//Default Filter 
-		if (this._defaultFilter !== undefined && this._defaultFilter !== "") {
-			this._filter += "&$filter=" + this._defaultFilter;
-		}
-		var records = await this._context.webAPI.retrieveMultipleRecords(this._entityName, this._filter);
-		for (var i = 0; i < records.entities.length; i++) {
-			var newChkBox = document.createElement("input");
-			var newLabel = document.createElement("label");
-			var newUList = document.createElement("li");
+				this._possibleValues.push(records.entities[i]);
 
-			this._possibleValues.push(records.entities[i]);
-
-			newChkBox.type = "checkbox";
-			newChkBox.id = records.entities[i][this._entityName + "id"];
-			newChkBox.name = records.entities[i][this._selectorLabel];
-			newChkBox.value = records.entities[i][this._entityName + "id"];
-			if (this._values != undefined) {
-				if (this._values.includes(newChkBox.id)) {
-					newChkBox.checked = true;
+				newChkBox.type = "checkbox";
+				newChkBox.id = records.entities[i][this._entityName + "id"];
+				newChkBox.name = records.entities[i][this._selectorLabel];
+				newChkBox.value = records.entities[i][this._entityName + "id"];
+				if (this._values != undefined) {
+					if (this._values.includes(newChkBox.id)) {
+						newChkBox.checked = true;
+					}
+				}
+				newChkBox.addEventListener("change", this._checkBoxChanged);
+				newChkBox.disabled = this._controleDisabled;
+				newLabel.innerHTML = records.entities[i][this._selectorLabel];
+				newLabel.htmlFor = records.entities[i][this._entityName + "id"];
+				newUList.appendChild(newChkBox);
+				newUList.appendChild(newLabel);
+				if(!this._controleDisabled || newChkBox.checked){
+					this._unorderedList.appendChild(newUList);
 				}
 			}
-			newChkBox.addEventListener("change", this._checkBoxChanged);
-			newLabel.innerHTML = records.entities[i][this._selectorLabel];
-			newLabel.htmlFor = records.entities[i][this._entityName + "id"];
-			newUList.appendChild(newChkBox);
-			newUList.appendChild(newLabel);
-			this._unorderedList.appendChild(newUList);
-		}
-		this._mainContainer.appendChild(this._unorderedList);
-		this._mainContainer.appendChild(this._errorLabel);
-		this._container.appendChild(this._mainContainer);
-
+			this._mainContainer.appendChild(this._unorderedList);
+			this._mainContainer.appendChild(this._errorLabel);
+			this._container.appendChild(this._mainContainer);
 		} catch(error) {
 			swal.fire("getRecords", "Error:" + error.message, "error");
 		}
 	}
 	
 	public async checkBoxChanged(evnt: Event) {
-	try {
-		var targetInput = <HTMLInputElement>evnt.target;
-		// @ts-ignore
-		var contextInfo = this._context.mode.contextInfo;
-		var recordId = contextInfo.entityId;
-		var thisEntity = contextInfo.entityTypeName;
-		var thatEntity = this.getEntityPluralName(this._entityName);
-		var thisEntityPlural = this.getEntityPluralName(thisEntity);
-		var associationTable = this._context.parameters.associationTable.raw!;
-		var lookupFieldTo = this._context.parameters.lookuptoAssociatedTable.raw!;
-		var lookupFieldFrom = this._context.parameters.lookuptoCurrentTable.raw!;
-		var lookupToLower = lookupFieldTo.toLowerCase();
-		var lookupFromLower = lookupFieldFrom.toLowerCase();
-		var lookupDataTo = lookupFieldTo + "@odata.bind";
-		var lookupDataFrom = lookupFieldFrom + "@odata.bind";
-		var selectorLabel = this._context.parameters.selectorLabel.raw!;
+		try {
+			var targetInput = <HTMLInputElement>evnt.target;
+			// @ts-ignore
+			var contextInfo = this._context.mode.contextInfo;
+			var recordId = contextInfo.entityId;
+			var thisEntity = contextInfo.entityTypeName;
+			var thatEntity = this.getEntityPluralName(this._entityName);
+			var thisEntityPlural = this.getEntityPluralName(thisEntity);
+			var associationTable = this._context.parameters.associationTable.raw!;
+			var lookupFieldTo = this._context.parameters.lookuptoAssociatedTable.raw!;
+			var lookupFieldFrom = this._context.parameters.lookuptoCurrentTable.raw!;
+			var lookupToLower = lookupFieldTo.toLowerCase();
+			var lookupFromLower = lookupFieldFrom.toLowerCase();
+			var lookupDataTo = lookupFieldTo + "@odata.bind";
+			var lookupDataFrom = lookupFieldFrom + "@odata.bind";
+			var selectorLabel = this._context.parameters.selectorLabel.raw!;
 
-		var data =
-		{
-			[selectorLabel]: targetInput.name,
-			[lookupDataTo]: "/" + thatEntity + "(" + targetInput.id + ")",
-			[lookupDataFrom]: "/" + thisEntityPlural + "(" + recordId + ")"
-		}
-		var actual = 0;
-		var cState = this._selStates.findIndex(e => e.text === targetInput.value);
-		if (cState !== -1)
-			actual = this._selStates[cState].actual;
-
-		if (targetInput.checked) {
-			await this._context.webAPI.createRecord(associationTable, data);
-			actual++;
-
-			if(this._values === null || this._values === undefined){
-				this._values = []; 
+			var data =
+			{
+				[selectorLabel]: targetInput.name,
+				[lookupDataTo]: "/" + thatEntity + "(" + targetInput.id + ")",
+				[lookupDataFrom]: "/" + thisEntityPlural + "(" + recordId + ")"
 			}
+			var actual = 0;
+			var cState = this._selStates.findIndex(e => e.text === targetInput.value);
+			if (cState !== -1)
+				actual = this._selStates[cState].actual;
 
-			if(this._values.indexOf(targetInput.id) < 0){
-				this._values.push(targetInput.id);
+			if (targetInput.checked) {
+				await this._context.webAPI.createRecord(associationTable, data);
+				actual++;
+
+				if(this._values === null || this._values === undefined){
+					this._values = []; 
+				}
+
+				if(this._values.indexOf(targetInput.id) < 0){
+					this._values.push(targetInput.id);
+				}
 			}
-		}
-		else {
-			await this.deleteRecord(associationTable, lookupToLower, targetInput.id, lookupFromLower, recordId);
-			actual--;
-			this._values.splice(this._values.indexOf(targetInput.id), 1);
-		}
-	
-		this._notifyOutputChanged();
+			else {
+				await this.deleteRecord(associationTable, lookupToLower, targetInput.id, lookupFromLower, recordId);
+				actual--;
+				this._values.splice(this._values.indexOf(targetInput.id), 1);
+			}
+		
+			this._notifyOutputChanged();
 		} catch (error) {
 			swal.fire("checkBoxChanged", "Error:" + error.message , "error");
 		}
@@ -287,21 +293,21 @@ export class AssociationTableControl implements ComponentFramework.StandardContr
 	}
 
 	public async showHideControl(show: boolean) {
-	try {
-		var display = "inline";
-		if (show === false) {
-			display = "none";
-		}
-		this._unorderedList.style.display = display;
+		try {
+			var display = "inline";
+			if (show === false) {
+				display = "none";
+			}
+			this._unorderedList.style.display = display;
 		} catch (error) {
 			swal.fire("showHideControl", "Error:" + error.message, "error");
 		}
 	}
 	
 	public async refreshItems() {
-	try {
-		await this.getRecords();
-		return true;
+		try {
+			await this.getRecords();
+			return true;
 		} catch (error) {
 			swal.fire("refreshItems", "Error:" + error.message, "error");
 		}

@@ -91,3 +91,10 @@ ul.ks-cboxtags li input[type="checkbox"] {
 ul.ks-cboxtags li input[type="checkbox"]:focus + label {
   border: 1px solid #2266E3;
 }
+
+/*Disabled*/
+ul.ks-cboxtags li input[type="checkbox"]:checked:disabled + label {
+    border: 1px solid #c8c6c4;
+    background-color: #c8c6c4;
+    color: #ffffff;
+}
