@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest>
-  <control namespace="CRMVet" constructor="AssociationTableControl" version="0.0.33" display-name-key="Association Table Control" description-key="Control for Association (aka joint or N:N) tables" control-type="standard" preview-image="img/preview.png">
+  <control namespace="CRMVet" constructor="AssociationTableControl" version="0.0.34" display-name-key="Association Table Control" description-key="Control for Association (aka joint or N:N) tables" control-type="standard" preview-image="img/preview.png">
     <!-- This property node defines configuration required for this PCF. Configuration is done as a mapping to Dataverse fields or hard-coded expressions -->
     <property name="fieldValue" display-name-key="Field Logical Name" description-key="Property_Desc_Key" of-type="Multiple" usage="bound" required="true" />
     <property name="selectorTable" display-name-key="Selector Table" description-key="Name for the Selector Table to show records to choose from in UI. Example: crmvet_table2" of-type="SingleLine.Text" usage="input" required="true" default-value="" />
