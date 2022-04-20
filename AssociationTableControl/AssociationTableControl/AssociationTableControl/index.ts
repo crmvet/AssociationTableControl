@@ -197,11 +197,11 @@ export class AssociationTableControl implements ComponentFramework.StandardContr
 		var lookupFromLower = lookupFieldFrom.toLowerCase();
 		var lookupDataTo = lookupFieldTo + "@odata.bind";
 		var lookupDataFrom = lookupFieldFrom + "@odata.bind";
-		var selectorLabel = this._context.parameters.selectorLabel.raw!;
+		var associationTableNameField = this._context.parameters.associationLable.raw!;
 
 		var data =
 		{
-			[selectorLabel]: targetInput.name,
+			[associationTableNameField]: targetInput.name,
 			[lookupDataTo]: "/" + thatEntity + "(" + targetInput.id + ")",
 			[lookupDataFrom]: "/" + thisEntityPlural + "(" + recordId + ")"
 		}
